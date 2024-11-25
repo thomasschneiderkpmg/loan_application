@@ -242,6 +242,52 @@
                 </subSections>
             </ObjectPageSection>
 
+            <!-- Additional Fields Section -->
+<ObjectPageSection
+    title="Additional Information"
+    id="additionalInfoSection">
+    <subSections>
+        <ObjectPageSubSection>
+            <blocks>
+                <form:SimpleForm>
+                    <form:content>
+                        <m:Label text="Down Payment (EUR):" />
+                        <m:Input
+                            id="downPaymentInput"
+                            placeholder="0,00"
+                            value="{sampleData>/LoanApplication/downPayment}" />
+
+                        <m:Label text="Remaining Principal (EUR):" />
+                        <m:Input
+                            id="remainingPrincipalInput"
+                            placeholder="0,00"
+                            value="{sampleData>/LoanApplication/remainingPrincipal}" />
+
+                        <m:Label text="Late Fees (EUR):" />
+                        <m:Input
+                            id="lateFeesInput"
+                            placeholder="0,00"
+                            value="{sampleData>/LoanApplication/lateFees}" />
+
+                        <m:Label text="Annual Income (EUR):" />
+                        <m:Input
+                            id="annualIncomeInput"
+                            placeholder="0,00"
+                            value="{sampleData>/LoanApplication/annualIncome}" />
+
+                        <m:Label text="Credit Score:" />
+                        <m:Input
+                            id="creditScoreInput"
+                            type="Number"
+                            placeholder="Enter credit score"
+                            value="{sampleData>/LoanApplication/creditScore}" />
+                    </form:content>
+                </form:SimpleForm>
+            </blocks>
+        </ObjectPageSubSection>
+    </subSections>
+</ObjectPageSection>
+
             <!-- Attachments Section -->
             <ObjectPageSection
                 title="Attachments"

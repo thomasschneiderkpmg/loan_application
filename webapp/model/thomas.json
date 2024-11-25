@@ -1,8 +1,8 @@
 {
-    "LoanApplication": {
+  "LoanApplication": {
       "transactionType": "business",
       "customerCode": "CUST67890",
-      "loanAmount": "25000",
+      "loanAmount": 25000,
       "applicationDate": "2023-09-15",
       "borrowerName": "Thomas Schneider",
       "customerId": "ID54321",
@@ -10,13 +10,17 @@
       "address": "456 Business Ave, Metropolis",
       "phoneNumber": "+0987654321",
       "emailAddress": "thomas.schneider@example.com",
-      "loanDuration": "60",
-      "interestRate": "4.2",
+      "loanDuration": 60,
+      "interestRate": 4.2,
       "paymentFrequency": "quarterly",
       "collateral": "Company Assets",
       "firstPaymentDate": "2023-12-01",
-      "monthlyPayment": "500",
-      "totalPayments": "60"
-    }
+      "monthlyPayment": 500,
+      "totalPayments": 60,
+      "downPayment": 5000,
+      "remainingPrincipal": 20000,
+      "lateFees": 100,
+      "annualIncome": 120000,
+      "creditScore": 750
   }
-  
+}

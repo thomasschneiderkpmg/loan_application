@@ -113,7 +113,7 @@ sap.ui.define([
 
         _sendDataToAPI: function (payload) {
             // Replace this URL with your API endpoint
-            var apiUrl = "http://127.0.0.1:5000/api/check_benfords_law";
+            var apiUrl = "http://127.0.0.1:5000/api/analyze";
 
             $.ajax({
                 url: apiUrl,
@@ -121,12 +121,45 @@ sap.ui.define([
                 contentType: "application/json",
                 data: JSON.stringify(payload),
                 success: function (response) {
-                    if (response.compliancePercentage !== undefined) {
-                        MessageToast.show("Analysis completed successfully! Compliance: " + response.compliancePercentage + "%");
-                    } else {
-                        MessageToast.show("Analysis completed. No compliance data received.");
-                    }
+                    // Handle analysis results
                     console.log("API Response:", response);
+                    var resultMessages = [];
+
+                    if (response.benfordsLaw) {
+                        if (response.benfordsLaw.error) {
+                            resultMessages.push("Benford's Law Error: " + response.benfordsLaw.error);
+                        } else {
+                            resultMessages.push(
+                                "Benford's Law Compliance: " +
+                                response.benfordsLaw.compliancePercentage +
+                                "% - " +
+                                response.benfordsLaw.message
+                            );
+                        }
+                    }
+
+                    if (response.fraudPatternAnalysis) {
+                        if (response.fraudPatternAnalysis.error) {
+                            resultMessages.push("Fraud Pattern Analysis Error: " + response.fraudPatternAnalysis.error);
+                        } else {
+                            resultMessages.push(
+                                response.fraudPatternAnalysis.message
+                            );
+                        }
+                    }
+
+                    if (response.anomalyDetection) {
+                        if (response.anomalyDetection.error) {
+                            resultMessages.push("Anomaly Detection Error: " + response.anomalyDetection.error);
+                        } else {
+                            resultMessages.push(
+                                response.anomalyDetection.message
+                            );
+                        }
+                    }
+
+                    // Display all results as a MessageToast
+                    MessageToast.show(resultMessages.join("\n"));
                 },
                 error: function (error) {
                     var errorMessage = error.responseJSON && error.responseJSON.error ? error.responseJSON.error : "An unknown error occurred.";
@@ -222,7 +255,7 @@ sap.ui.define([
             if (this._pdfViewer && this._pdfViewer.getSource()) {
                 this._pdfViewer.open();
             } else {
-                MessageToast.show("No PDF to display");
+                MessageToast.show("No PDF to display.");
             }
         }
     });
