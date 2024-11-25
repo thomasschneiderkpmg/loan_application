@@ -1,0 +1,23 @@
+<mvc:View
+    controllerName="loan_application.controller.App"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:mvc="sap.ui.core.mvc"
+    displayBlock="true">
+    <!-- Shell Bar -->
+    <f:ShellBar
+        id="shellBar"
+        title="Create Loan"
+        homeIcon="images/sap_logo.png"
+        showMenuButton="true"
+        showNavButton="true"
+        showSearch="true"
+        showNotifications="true"
+        showProductSwitcher="true">
+    </f:ShellBar>
+
+    <!-- App Control -->
+    <App id="app" height="95.9%">
+        <!-- The router will place views here -->
+    </App>
+</mvc:View>

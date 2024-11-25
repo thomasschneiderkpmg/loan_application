@@ -1,0 +1,22 @@
+{
+    "LoanApplication": {
+      "transactionType": "personal",
+      "customerCode": "CUST12345",
+      "loanAmount": "5000",
+      "applicationDate": "2023-10-01",
+      "borrowerName": "Sebestyen Huszar",
+      "customerId": "ID98765",
+      "dateOfBirth": "1980-05-15",
+      "address": "123 Main Street, Cityville",
+      "phoneNumber": "+1234567890",
+      "emailAddress": "sebestyen.huszar@example.com",
+      "loanDuration": "36",
+      "interestRate": "5.5",
+      "paymentFrequency": "monthly",
+      "collateral": "None",
+      "firstPaymentDate": "2023-11-01",
+      "monthlyPayment": "150",
+      "totalPayments": "36"
+    }
+  }
+  

@@ -1,0 +1,284 @@
+<mvc:View
+    controllerName="loan_application.controller.CreateLoan"
+    xmlns="sap.uxap"
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:form="sap.ui.layout.form"
+    xmlns:m="sap.m"
+    xmlns:unified="sap.ui.unified">
+    <ObjectPageLayout
+        id="ObjectPageLayout"
+        headerTitle="Create Loan"
+        showFooter="true">
+        <headerContent>
+            <!-- FlexBox Layout -->
+            <m:FlexBox
+                direction="Column"
+                alignItems="Center"
+                justifyContent="Start"
+                class="sapUiSmallMargin">
+                <!-- Title -->
+                <m:Title
+                    text="AI Fill and Detection"
+                    level="H2"
+                    titleStyle="H4"
+                    class="sapUiNoMargin" />
+                <!-- Upload Area FlexBox -->
+                <m:VBox
+                    alignItems="Start"
+                    class="sapUiNoMargin">
+                    <!-- First Row: File Uploader -->
+                    <m:HBox
+                        alignItems="Center"
+                        justifyContent="Start"
+                        class="sapUiNoMargin">
+                        <unified:FileUploader
+                            id="fileUploader"
+                            fileType="jpg,png,jpeg,pdf"
+                            maximumFileSize="10"
+                            uploadOnChange="false"
+                            change="onFileChange"
+                            placeholder="Upload Image or PDF"
+                            tooltip="Upload an image or PDF"
+                            class="sapUiNoMargin" />
+                        <m:Button
+                            id="openPdfButton"
+                            text="Open PDF"
+                            visible="false"
+                            press="onOpenPdf"
+                            class="sapUiSmallMarginStart" />
+                    </m:HBox>
+                    <!-- Second Row: AI Detection Button -->
+                    <m:HBox
+                        alignItems="Center"
+                        justifyContent="Start"
+                        class="sapUiSmallMarginTop">
+                        <m:Button
+                            id="aiButton"
+                            text="Run AI Detection"
+                            press="onAIButtonPress"
+                            type="Emphasized"
+                            class="sapUiNoMargin" />
+                    </m:HBox>
+                </m:VBox>
+            </m:FlexBox>
+        </headerContent>
+        <!-- General Information Section -->
+        <sections>
+            <ObjectPageSection
+                title="General Information"
+                id="generalInfoSection">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <form:SimpleForm>
+                                <form:content>
+                                    <m:Label text="Transaction Type:" />
+                                    <m:Select
+                                        id="transactionTypeSelect"
+                                        selectedKey="{sampleData>/LoanApplication/transactionType}">
+                                        <m:items>
+                                            <core:Item key="personal" text="Personal Loan" />
+                                            <core:Item key="business" text="Business Loan" />
+                                            <core:Item key="mortgage" text="Mortgage" />
+                                        </m:items>
+                                    </m:Select>
+
+                                    <m:Label text="Customer Code:" />
+                                    <m:Input
+                                        id="customerCodeInput"
+                                        placeholder="Enter customer code"
+                                        value="{sampleData>/LoanApplication/customerCode}" />
+
+                                    <m:Label text="Loan Amount:" />
+                                    <m:Input
+                                        id="loanAmountInput"
+                                        placeholder="0,00"
+                                        value="{sampleData>/LoanApplication/loanAmount}" />
+
+                                    <m:Label text="Application Date:" />
+                                    <m:DatePicker
+                                        id="applicationDateInput"
+                                        value="{sampleData>/LoanApplication/applicationDate}"
+                                        displayFormat="yyyy-MM-dd"
+                                        valueFormat="yyyy-MM-dd" />
+                                </form:content>
+                            </form:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+
+            <!-- Borrower Details Section -->
+            <ObjectPageSection
+                title="Borrower Details"
+                id="borrowerDetailsSection">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <form:SimpleForm>
+                                <form:content>
+                                    <m:Label text="Borrower Name:" />
+                                    <m:Input
+                                        id="borrowerNameInput"
+                                        placeholder="Enter borrower's name"
+                                        value="{sampleData>/LoanApplication/borrowerName}" />
+
+                                    <m:Label text="Customer ID:" />
+                                    <m:Input
+                                        id="customerIdInput"
+                                        placeholder="Enter customer ID"
+                                        value="{sampleData>/LoanApplication/customerId}" />
+
+                                    <m:Label text="Date of Birth:" />
+                                    <m:DatePicker
+                                        id="dobInput"
+                                        value="{sampleData>/LoanApplication/dateOfBirth}"
+                                        displayFormat="yyyy-MM-dd"
+                                        valueFormat="yyyy-MM-dd" />
+
+                                    <m:Label text="Address:" />
+                                    <m:Input
+                                        id="addressInput"
+                                        placeholder="Enter borrower's address"
+                                        value="{sampleData>/LoanApplication/address}" />
+
+                                    <m:Label text="Phone Number:" />
+                                    <m:Input
+                                        id="phoneInput"
+                                        placeholder="Enter phone number"
+                                        value="{sampleData>/LoanApplication/phoneNumber}" />
+
+                                    <m:Label text="Email Address:" />
+                                    <m:Input
+                                        id="emailInput"
+                                        placeholder="Enter email address"
+                                        type="Email"
+                                        value="{sampleData>/LoanApplication/emailAddress}" />
+                                </form:content>
+                            </form:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+
+            <!-- Loan Terms Section -->
+            <ObjectPageSection
+                title="Loan Terms"
+                id="loanTermsSection">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <form:SimpleForm>
+                                <form:content>
+                                    <m:Label text="Loan Duration (months):" />
+                                    <m:Input
+                                        id="loanDurationInput"
+                                        type="Number"
+                                        placeholder="Enter duration in months"
+                                        value="{sampleData>/LoanApplication/loanDuration}" />
+
+                                    <m:Label text="Interest Rate (%):" />
+                                    <m:Input
+                                        id="interestRateInput"
+                                        placeholder="0.00"
+                                        value="{sampleData>/LoanApplication/interestRate}" />
+
+                                    <m:Label text="Payment Frequency:" />
+                                    <m:Select
+                                        id="paymentFrequencySelect"
+                                        selectedKey="{sampleData>/LoanApplication/paymentFrequency}">
+                                        <m:items>
+                                            <core:Item key="monthly" text="Monthly" />
+                                            <core:Item key="quarterly" text="Quarterly" />
+                                            <core:Item key="annually" text="Annually" />
+                                        </m:items>
+                                    </m:Select>
+
+                                    <m:Label text="Collateral:" />
+                                    <m:Input
+                                        id="collateralInput"
+                                        placeholder="Enter collateral details (if any)"
+                                        value="{sampleData>/LoanApplication/collateral}" />
+                                </form:content>
+                            </form:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+
+            <!-- Payment Schedule Section -->
+            <ObjectPageSection
+                title="Payment Schedule"
+                id="paymentScheduleSection">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <form:SimpleForm>
+                                <form:content>
+                                    <m:Label text="First Payment Date:" />
+                                    <m:DatePicker
+                                        id="firstPaymentDateInput"
+                                        value="{sampleData>/LoanApplication/firstPaymentDate}"
+                                        displayFormat="yyyy-MM-dd"
+                                        valueFormat="yyyy-MM-dd" />
+
+                                    <m:Label text="Monthly Payment (EUR):" />
+                                    <m:Input
+                                        id="monthlyPaymentInput"
+                                        placeholder="0,00"
+                                        value="{sampleData>/LoanApplication/monthlyPayment}" />
+
+                                    <m:Label text="Total Number of Payments:" />
+                                    <m:Input
+                                        id="totalPaymentsInput"
+                                        type="Number"
+                                        placeholder="Enter total payments"
+                                        value="{sampleData>/LoanApplication/totalPayments}" />
+                                </form:content>
+                            </form:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+
+            <!-- Attachments Section -->
+            <ObjectPageSection
+                title="Attachments"
+                id="attachmentsSection">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <form:SimpleForm>
+                                <form:content>
+                                    <m:Label text="Upload Supporting Documents:" />
+                                    <unified:FileUploader
+                                        id="attachmentsFileUploader"
+                                        placeholder="Choose a file..."
+                                        fileType="pdf,docx,jpg,png"
+                                        maximumFileSize="10" />
+                                    <m:Text text="Accepted formats: PDF, DOCX, JPG, PNG. Max size: 10MB." />
+                                </form:content>
+                            </form:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+        </sections>
+        <!-- Footer -->
+        <footer>
+            <m:OverflowToolbar
+                id="footerToolbar"
+                design="Solid">
+                <m:ToolbarSpacer />
+                <m:Button
+                    text="Post"
+                    type="Emphasized"
+                    press="onPostPress" />
+                <m:Button
+                    text="Cancel"
+                    press="onCancelPress" />
+            </m:OverflowToolbar>
+        </footer>
+    </ObjectPageLayout>
+</mvc:View>
