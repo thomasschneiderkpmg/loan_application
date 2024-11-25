@@ -6,8 +6,9 @@ sap.ui.define([
     "sap/m/Dialog",
     "sap/m/Button",
     "sap/m/CheckBox",
-    "sap/m/VBox"
-], function (Controller, MessageToast, PDFViewer, JSONModel, Dialog, Button, CheckBox, VBox) {
+    "sap/m/VBox",
+    "sap/m/TextArea"
+], function (Controller, MessageToast, PDFViewer, JSONModel, Dialog, Button, CheckBox, VBox, TextArea) {
     "use strict";
 
     return Controller.extend("loan_application.controller.CreateLoan", {
@@ -72,36 +73,36 @@ sap.ui.define([
         _runAIAnalyses: function () {
             var oModel = this.getView().getModel("ui");
             var analyses = oModel.getProperty("/selectedAnalyses");
-        
+
             // Load the data from `sebestyen.json`
             var oDataModel = new JSONModel();
             var sPath = sap.ui.require.toUrl("loan_application/model/sebestyen.json");
-        
+
             oDataModel.loadData(sPath)
                 .then(function () {
                     var uploadedData = oDataModel.getData();
-        
+
                     if (!uploadedData || Object.keys(uploadedData).length === 0) {
                         MessageToast.show("The JSON file contains no valid data.");
                         return;
                     }
-        
+
                     // Filter selected analyses
                     var selectedAnalyses = Object.keys(analyses).filter(function (key) {
                         return analyses[key];
                     });
-        
+
                     if (selectedAnalyses.length === 0) {
                         MessageToast.show("Please select at least one analysis option.");
                         return;
                     }
-        
+
                     // Prepare the payload
                     var payload = {
                         data: uploadedData,
                         analyses: selectedAnalyses
                     };
-        
+
                     // Call the API
                     this._sendDataToAPI(payload);
                 }.bind(this))
@@ -121,52 +122,64 @@ sap.ui.define([
                 contentType: "application/json",
                 data: JSON.stringify(payload),
                 success: function (response) {
-                    // Handle analysis results
-                    console.log("API Response:", response);
-                    var resultMessages = [];
-
-                    if (response.benfordsLaw) {
-                        if (response.benfordsLaw.error) {
-                            resultMessages.push("Benford's Law Error: " + response.benfordsLaw.error);
-                        } else {
-                            resultMessages.push(
-                                "Benford's Law Compliance: " +
-                                response.benfordsLaw.compliancePercentage +
-                                "% - " +
-                                response.benfordsLaw.message
-                            );
-                        }
-                    }
-
-                    if (response.fraudPatternAnalysis) {
-                        if (response.fraudPatternAnalysis.error) {
-                            resultMessages.push("Fraud Pattern Analysis Error: " + response.fraudPatternAnalysis.error);
-                        } else {
-                            resultMessages.push(
-                                response.fraudPatternAnalysis.message
-                            );
-                        }
-                    }
-
-                    if (response.anomalyDetection) {
-                        if (response.anomalyDetection.error) {
-                            resultMessages.push("Anomaly Detection Error: " + response.anomalyDetection.error);
-                        } else {
-                            resultMessages.push(
-                                response.anomalyDetection.message
-                            );
-                        }
-                    }
-
-                    // Display all results as a MessageToast
-                    MessageToast.show(resultMessages.join("\n"));
-                },
+                    this._showResultsPopup(response);
+                }.bind(this),
                 error: function (error) {
                     var errorMessage = error.responseJSON && error.responseJSON.error ? error.responseJSON.error : "An unknown error occurred.";
-                    MessageToast.show("Error occurred during analysis: " + errorMessage);
                     console.error("API Error:", error);
-                }
+                    this._showResultsPopup({ error: errorMessage });
+                }.bind(this)
             });
+        },
+
+        _showResultsPopup: function (response) {
+            // Build the results text
+            var resultText = "";
+
+            if (response.error) {
+                resultText = "Error: " + response.error;
+            } else {
+                if (response.benfordsLaw) {
+                    resultText += "Benford's Law Compliance: " + response.benfordsLaw.compliancePercentage + "%\n";
+                    resultText += response.benfordsLaw.message + "\n\n";
+                }
+
+                if (response.fraudPatternAnalysis) {
+                    resultText += "Fraud Pattern Analysis: " + response.fraudPatternAnalysis.message + "\n\n";
+                }
+
+                if (response.anomalyDetection) {
+                    resultText += "Anomaly Detection: " + response.anomalyDetection.message + "\n\n";
+                }
+            }
+
+            // Create and open the results dialog
+            if (!this._resultDialog) {
+                this._resultDialog = new Dialog({
+                    title: "Analysis Results",
+                    content: new TextArea({
+                        value: resultText,
+                        editable: false,
+                        width: "100%",
+                        growing: true,
+                        growingMaxLines: 10
+                    }),
+                    beginButton: new Button({
+                        text: "Close",
+                        press: function () {
+                            this._resultDialog.close();
+                        }.bind(this)
+                    })
+                });
+
+                this.getView().addDependent(this._resultDialog);
+            }
+
+            // Update the content of the dialog
+            this._resultDialog.getContent()[0].setValue(resultText);
+
+            // Open the dialog
+            this._resultDialog.open();
         },
 
         onPostPress: function () {
@@ -198,65 +211,6 @@ sap.ui.define([
 
         _submitLoanApplication: function () {
             MessageToast.show("Loan application submitted successfully!");
-        },
-
-        onFileChange: function (oEvent) {
-            // File upload handling logic here
-            var oFile = oEvent.getParameter("files")[0];
-
-            if (oFile) {
-                var sFileType = oFile.type;
-                var sFileName = oFile.name;
-                var sFileBaseName = sFileName.split(".")[0].toLowerCase();
-                var oReader = new FileReader();
-                var oOpenPdfButton = this.byId("openPdfButton");
-
-                if (sFileType.match("image.*")) {
-                    oReader.onload = function (e) {
-                        var sContent = e.target.result;
-                        MessageToast.show("Image uploaded successfully.");
-                        oOpenPdfButton.setVisible(false);
-                        this._loadSampleData(sFileBaseName);
-                    }.bind(this);
-                    oReader.readAsDataURL(oFile);
-
-                } else if (sFileType === "application/pdf") {
-                    oReader.onload = function (e) {
-                        var sContent = e.target.result;
-                        oOpenPdfButton.setVisible(true);
-                        this._pdfViewer.setSource(sContent);
-                        this._pdfViewer.setTitle("Uploaded PDF");
-                        this._loadSampleData(sFileBaseName);
-                    }.bind(this);
-                    oReader.readAsDataURL(oFile);
-
-                } else {
-                    MessageToast.show("Unsupported file type. Please upload an image or PDF.");
-                    oOpenPdfButton.setVisible(false);
-                }
-            }
-        },
-
-        _loadSampleData: function (sName) {
-            var oModel = new JSONModel();
-            var sPath = sap.ui.require.toUrl("loan_application/model/" + sName + ".json");
-
-            oModel.loadData(sPath)
-                .then(function () {
-                    this.getView().setModel(oModel, "sampleData");
-                    MessageToast.show("Form data loaded for " + sName + ".");
-                }.bind(this))
-                .catch(function () {
-                    MessageToast.show("No data found for " + sName + ". The form will remain empty.");
-                });
-        },
-
-        onOpenPdf: function () {
-            if (this._pdfViewer && this._pdfViewer.getSource()) {
-                this._pdfViewer.open();
-            } else {
-                MessageToast.show("No PDF to display.");
-            }
         }
     });
 });
