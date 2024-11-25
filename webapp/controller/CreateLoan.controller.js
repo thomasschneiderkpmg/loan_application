@@ -133,54 +133,160 @@ sap.ui.define([
         },
 
         _showResultsPopup: function (response) {
-            // Build the results text
-            var resultText = "";
-
-            if (response.error) {
-                resultText = "Error: " + response.error;
-            } else {
-                if (response.benfordsLaw) {
-                    resultText += "Benford's Law Compliance: " + response.benfordsLaw.compliancePercentage + "%\n";
-                    resultText += response.benfordsLaw.message + "\n\n";
+            var contentItems = []; // Content items for the dialog
+        
+            // Add Benford's Law Section
+            if (response.benfordsLaw) {
+                var compliance = response.benfordsLaw.compliancePercentage;
+                var complianceColor = "green";
+                var complianceIcon = "sap-icon://accept";
+        
+                if (compliance < 10) {
+                    complianceColor = "red";
+                    complianceIcon = "sap-icon://error";
+                } else if (compliance >= 10 && compliance < 20) {
+                    complianceColor = "orange";
+                    complianceIcon = "sap-icon://status-critical";
                 }
-
-                if (response.fraudPatternAnalysis) {
-                    resultText += "Fraud Pattern Analysis: " + response.fraudPatternAnalysis.message + "\n\n";
-                }
-
-                if (response.anomalyDetection) {
-                    resultText += "Anomaly Detection: " + response.anomalyDetection.message + "\n\n";
-                }
+        
+                contentItems.push(
+                    new sap.m.HBox({
+                        alignItems: "Center",
+                        justifyContent: "Start",
+                        items: [
+                            new sap.ui.core.Icon({
+                                src: complianceIcon,
+                                color: complianceColor,
+                                size: "2rem"
+                            }).addStyleClass("sapUiSmallMarginBegin"),
+                            new sap.m.VBox({
+                                items: [
+                                    new sap.m.Text({
+                                        text: "Benford's Law Analysis",
+                                        wrapping: true
+                                    }).addStyleClass("sapUiSmallMarginBottom sapUiBoldText"),
+                                    new sap.m.Text({
+                                        text: `Compliance: ${compliance.toFixed(2)}%`,
+                                        wrapping: true
+                                    }),
+                                    new sap.m.Text({
+                                        text: response.benfordsLaw.message,
+                                        wrapping: true
+                                    })
+                                ]
+                            }).addStyleClass("sapUiSmallMarginBegin")
+                        ]
+                    }).addStyleClass("sapUiSmallMarginBottom")
+                );
             }
-
+        
+            // Add Fraud Pattern Analysis Section
+            if (response.fraudPatternAnalysis) {
+                var suspiciousCount = response.fraudPatternAnalysis.suspiciousCount || 0;
+                var fraudColor = "green";
+                var fraudIcon = "sap-icon://accept";
+        
+                if (suspiciousCount > 5) {
+                    fraudColor = "red";
+                    fraudIcon = "sap-icon://error";
+                } else if (suspiciousCount > 0) {
+                    fraudColor = "orange";
+                    fraudIcon = "sap-icon://status-critical";
+                }
+        
+                contentItems.push(
+                    new sap.m.HBox({
+                        alignItems: "Center",
+                        justifyContent: "Start",
+                        items: [
+                            new sap.ui.core.Icon({
+                                src: fraudIcon,
+                                color: fraudColor,
+                                size: "2rem"
+                            }).addStyleClass("sapUiSmallMarginBegin"),
+                            new sap.m.VBox({
+                                items: [
+                                    new sap.m.Text({
+                                        text: "Fraud Pattern Analysis",
+                                        wrapping: true
+                                    }).addStyleClass("sapUiSmallMarginBottom sapUiBoldText"),
+                                    new sap.m.Text({
+                                        text: response.fraudPatternAnalysis.message,
+                                        wrapping: true
+                                    })
+                                ]
+                            }).addStyleClass("sapUiSmallMarginBegin")
+                        ]
+                    }).addStyleClass("sapUiSmallMarginBottom")
+                );
+            }
+        
+            // Add Anomaly Detection Section
+            if (response.anomalyDetection) {
+                var anomalyCount = response.anomalyDetection.anomaliesCount || 0;
+                var anomalyColor = "green";
+                var anomalyIcon = "sap-icon://accept";
+        
+                if (anomalyCount > 5) {
+                    anomalyColor = "red";
+                    anomalyIcon = "sap-icon://error";
+                } else if (anomalyCount > 0) {
+                    anomalyColor = "orange";
+                    anomalyIcon = "sap-icon://status-critical";
+                }
+        
+                contentItems.push(
+                    new sap.m.HBox({
+                        alignItems: "Center",
+                        justifyContent: "Start",
+                        items: [
+                            new sap.ui.core.Icon({
+                                src: anomalyIcon,
+                                color: anomalyColor,
+                                size: "2rem"
+                            }).addStyleClass("sapUiSmallMarginBegin"),
+                            new sap.m.VBox({
+                                items: [
+                                    new sap.m.Text({
+                                        text: "Anomaly Detection",
+                                        wrapping: true
+                                    }).addStyleClass("sapUiSmallMarginBottom sapUiBoldText"),
+                                    new sap.m.Text({
+                                        text: response.anomalyDetection.message,
+                                        wrapping: true
+                                    })
+                                ]
+                            }).addStyleClass("sapUiSmallMarginBegin")
+                        ]
+                    }).addStyleClass("sapUiSmallMarginBottom")
+                );
+            }
+        
             // Create and open the results dialog
             if (!this._resultDialog) {
-                this._resultDialog = new Dialog({
+                this._resultDialog = new sap.m.Dialog({
                     title: "Analysis Results",
-                    content: new TextArea({
-                        value: resultText,
-                        editable: false,
-                        width: "100%",
-                        growing: true,
-                        growingMaxLines: 10
+                    content: new sap.m.VBox({
+                        items: contentItems
                     }),
-                    beginButton: new Button({
+                    beginButton: new sap.m.Button({
                         text: "Close",
                         press: function () {
                             this._resultDialog.close();
                         }.bind(this)
                     })
                 });
-
+        
                 this.getView().addDependent(this._resultDialog);
+            } else {
+                // Update content of the existing dialog
+                this._resultDialog.removeAllContent();
+                this._resultDialog.addContent(new sap.m.VBox({ items: contentItems }));
             }
-
-            // Update the content of the dialog
-            this._resultDialog.getContent()[0].setValue(resultText);
-
+        
             // Open the dialog
             this._resultDialog.open();
-        },
+        },           
 
         onPostPress: function () {
             // Show a confirmation dialog when "Post" is pressed
