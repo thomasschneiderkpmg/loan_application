@@ -1,25 +1,26 @@
-specVersion: "4.0"
+specVersion: "3.1"
 metadata:
   name: loan_application
 type: application
-framework:
-  name: SAPUI5
-  version: "1.130.2"
-  libraries:
-    - name: sap.f
-    - name: sap.m
-    - name: sap.ui.core
-    - name: sap.ui.layout
-    - name: themelib_sap_horizon
-    - name: sap.ui.unified
-    - name: sap.uxap
-builder:
-  resources:
-    excludes:
-      - "test/e2e/**"
 server:
   customMiddleware:
-    - name: "@ui5/middleware-code-coverage"
+    - name: fiori-tools-proxy
       afterMiddleware: compression
-    - name: ui5-middleware-livereload
+      configuration:
+        ignoreCertError: false
+        ui5:
+          path:
+            - /resources
+            - /test-resources
+          url: https://ui5.sap.com
+    - name: fiori-tools-appreload
       afterMiddleware: compression
+      configuration:
+        port: 35729
+        path: webapp
+        delay: 300
+    - name: fiori-tools-preview
+      afterMiddleware: fiori-tools-appreload
+      configuration:
+        component: loan_application
+        ui5Theme: sap_fiori_3

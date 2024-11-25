@@ -1,7 +1,28 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from benfords_law_checker import BenfordsLawChecker
 
 app = Flask(__name__)
+
+# Enable CORS for all routes
+CORS(app)
+
+def filter_numeric_data(data):
+    """
+    Filters only numeric values from the provided dictionary.
+    :param data: The input dictionary.
+    :return: A new dictionary containing only numeric values.
+    """
+    filtered_data = {}
+    for key, value in data.items():
+        try:
+            # Attempt to convert the value to a float or integer
+            numeric_value = float(value)
+            filtered_data[key] = numeric_value
+        except ValueError:
+            # Ignore non-numeric values
+            pass
+    return filtered_data
 
 @app.route('/api/check_benfords_law', methods=['POST'])
 def check_benfords_law():
@@ -12,18 +33,25 @@ def check_benfords_law():
     try:
         # Parse input JSON data
         data = request.json
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
+        print("Received data:", data)
 
-        # Ensure data is a dictionary with numeric values
-        if not isinstance(data, dict):
-            return jsonify({"error": "Invalid data format. Expected a JSON object."}), 400
+        if not data or 'data' not in data:
+            return jsonify({"error": "No valid data provided"}), 400
+
+        # Filter numeric values from the 'data' field
+        numeric_data = filter_numeric_data(data['data'].get('LoanApplication', {}))
+        print("Filtered numeric data:", numeric_data)
+
+        if not numeric_data:
+            return jsonify({"error": "No numeric data found for analysis"}), 400
 
         # Initialize the Benford's Law Checker
-        checker = BenfordsLawChecker(data)
+        checker = BenfordsLawChecker(numeric_data)
 
         # Calculate compliance percentage
         compliance_percentage = checker.calculate_compliance_percentage()
+
+        print("Compliance Percentage:", compliance_percentage)
 
         # Return the compliance percentage as a response
         return jsonify({
@@ -32,7 +60,8 @@ def check_benfords_law():
         }), 200
 
     except Exception as e:
-        # Handle unexpected errors
+        # Log the exception for debugging
+        print("Error:", str(e))
         return jsonify({"error": str(e)}), 500
 
 @app.route('/', methods=['GET'])

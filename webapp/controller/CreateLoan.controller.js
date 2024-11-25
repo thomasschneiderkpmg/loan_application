@@ -72,31 +72,43 @@ sap.ui.define([
         _runAIAnalyses: function () {
             var oModel = this.getView().getModel("ui");
             var analyses = oModel.getProperty("/selectedAnalyses");
-            var uploadedData = oModel.getProperty("/uploadedData");
-
-            if (!uploadedData || Object.keys(uploadedData).length === 0) {
-                MessageToast.show("Please upload a file with valid data before running the analysis.");
-                return;
-            }
-
-            // Filter selected analyses
-            var selectedAnalyses = Object.keys(analyses).filter(function (key) {
-                return analyses[key];
-            });
-
-            if (selectedAnalyses.length === 0) {
-                MessageToast.show("Please select at least one analysis option.");
-                return;
-            }
-
-            // Prepare the payload
-            var payload = {
-                data: uploadedData,
-                analyses: selectedAnalyses
-            };
-
-            // Call the API
-            this._sendDataToAPI(payload);
+        
+            // Load the data from `sebestyen.json`
+            var oDataModel = new JSONModel();
+            var sPath = sap.ui.require.toUrl("loan_application/model/sebestyen.json");
+        
+            oDataModel.loadData(sPath)
+                .then(function () {
+                    var uploadedData = oDataModel.getData();
+        
+                    if (!uploadedData || Object.keys(uploadedData).length === 0) {
+                        MessageToast.show("The JSON file contains no valid data.");
+                        return;
+                    }
+        
+                    // Filter selected analyses
+                    var selectedAnalyses = Object.keys(analyses).filter(function (key) {
+                        return analyses[key];
+                    });
+        
+                    if (selectedAnalyses.length === 0) {
+                        MessageToast.show("Please select at least one analysis option.");
+                        return;
+                    }
+        
+                    // Prepare the payload
+                    var payload = {
+                        data: uploadedData,
+                        analyses: selectedAnalyses
+                    };
+        
+                    // Call the API
+                    this._sendDataToAPI(payload);
+                }.bind(this))
+                .catch(function (error) {
+                    MessageToast.show("Failed to load the JSON file. Ensure it exists and is valid.");
+                    console.error("JSON Load Error:", error);
+                });
         },
 
         _sendDataToAPI: function (payload) {
