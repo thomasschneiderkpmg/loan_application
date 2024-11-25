@@ -183,8 +183,8 @@ sap.ui.define([
             // Add Fraud Pattern Analysis Section
             if (response.fraudPatternAnalysis) {
                 var suspiciousCount = response.fraudPatternAnalysis.suspiciousCount || 0;
-                var fraudColor = "green";
-                var fraudIcon = "sap-icon://accept";
+                var fraudColor = "orange";
+                var fraudIcon = "sap-icon://status-critical";
         
                 if (suspiciousCount > 5) {
                     fraudColor = "red";
@@ -224,8 +224,8 @@ sap.ui.define([
             // Add Anomaly Detection Section
             if (response.anomalyDetection) {
                 var anomalyCount = response.anomalyDetection.anomaliesCount || 0;
-                var anomalyColor = "green";
-                var anomalyIcon = "sap-icon://accept";
+                var anomalyColor = "orange";
+                var anomalyIcon = "sap-icon://status-critical";
         
                 if (anomalyCount > 5) {
                     anomalyColor = "red";
