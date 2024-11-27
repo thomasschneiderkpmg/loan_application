@@ -10,27 +10,26 @@
             <VBox class="sapUiSmallMargin">
                 <Title text="AI Analysis Results" level="H1" class="sapUiSmallMarginBottom"/>
 
-                <!-- Display Verdict -->
-                <ObjectStatus
-                    text="{= ${ConfirmationData>/verdict} === 'Good Boy' ? 'Good Boy' : 'Bad Boy'}"
-                    state="{= ${ConfirmationData>/verdict} === 'Good Boy' ? 'Success' : 'Error'}"
-                    class="sapUiLargeMarginBottom"
-                />
-
-                <!-- Display Benford's Law Compliance -->
+                <!-- Display Benford's Law -->
                 <ObjectAttribute
                     title="Benford's Law Compliance"
-                    text="{ConfirmationData>/aiResults/benfordsLaw/compliancePercentage}%" />
+                    text="{AIResults>/benfordsLaw/compliancePercentage}%" />
 
                 <!-- Display Fraud Pattern Analysis -->
                 <ObjectAttribute
                     title="Fraud Pattern Analysis"
-                    text="{ConfirmationData>/aiResults/fraudPatternAnalysis/message}" />
+                    text="{AIResults>/fraudPatternAnalysis/message}" />
 
                 <!-- Display Anomaly Detection -->
                 <ObjectAttribute
                     title="Anomaly Detection"
-                    text="{ConfirmationData>/aiResults/anomalyDetection/message}" />
+                    text="{AIResults>/anomalyDetection/message}" />
+
+                <!-- Display Verdict -->
+                <ObjectStatus
+                    text="{= ${AIResults>/benfordsLaw/compliancePercentage} > 20 ? 'Good Boy' : 'Bad Boy'}"
+                    state="{= ${AIResults>/benfordsLaw/compliancePercentage} > 20 ? 'Success' : 'Error'}"
+                    class="sapUiLargeMarginTop" />
             </VBox>
         </content>
         <footer>

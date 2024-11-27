@@ -5,6 +5,7 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("loan_application.controller.Confirmation", {
+
         onInit: function () {
             var oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("confirmation").attachPatternMatched(this._onRouteMatched, this);
@@ -13,35 +14,21 @@ sap.ui.define([
         _onRouteMatched: function (oEvent) {
             var oArgs = oEvent.getParameter("arguments");
 
-            // Parse AI Results from route parameters
+            // Parse AI results from route parameters
             if (oArgs && oArgs.aiResults) {
-                var aiResults = JSON.parse(decodeURIComponent(oArgs.aiResults));
+                try {
+                    var aiResults = JSON.parse(decodeURIComponent(oArgs.aiResults));
+                    var oModel = new sap.ui.model.json.JSONModel(aiResults);
 
-                // Determine if the applicant is a "Good Boy" or "Bad Boy"
-                var isGoodBoy = this._evaluateApplicant(aiResults);
-
-                // Prepare data for the confirmation view
-                var displayData = {
-                    aiResults: aiResults,
-                    verdict: isGoodBoy ? "Good Boy" : "Bad Boy"
-                };
-
-                // Set the data model for the view
-                var oModel = new sap.ui.model.json.JSONModel(displayData);
-                this.getView().setModel(oModel, "ConfirmationData");
+                    // Set the AI results model to the view
+                    this.getView().setModel(oModel, "AIResults");
+                } catch (error) {
+                    console.error("Error parsing AI results:", error);
+                    MessageToast.show("Failed to load AI analysis results.");
+                }
             } else {
-                MessageToast.show("No AI analysis results available!");
+                MessageToast.show("No AI analysis results available.");
             }
-        },
-
-        _evaluateApplicant: function (aiResults) {
-            // Simple evaluation logic (adjust as needed)
-            if (aiResults.benfordsLaw && aiResults.benfordsLaw.compliancePercentage > 20) {
-                return true; // Good Boy
-            }
-
-            // Other evaluation criteria can be added here
-            return false; // Bad Boy
         },
 
         onNavBack: function () {

@@ -151,13 +151,14 @@ sap.ui.define([
         _sendDataToAPI: function (payload) {
             // Replace this URL with your API endpoint
             var apiUrl = "http://127.0.0.1:5000/api/analyze";
-
+        
             $.ajax({
                 url: apiUrl,
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(payload),
                 success: function (response) {
+                    this._aiAnalysisResults = response; // Store the AI results for navigation
                     this._showResultsPopup(response);
                 }.bind(this),
                 error: function (error) {
@@ -352,16 +353,19 @@ sap.ui.define([
         },
         
         _submitLoanApplication: function () {
-            // Retrieve the AI analysis results from the dialog content or internal model
-            var aiResults = this._aiAnalysisResults || {}; // Assuming `_aiAnalysisResults` stores the last analysis run
+            // Check if AI results exist
+            if (!this._aiAnalysisResults) {
+                MessageToast.show("No AI analysis results available. Please run the analysis first.");
+                return;
+            }
         
-            // Encode the data to ensure safe URL passing
-            var encodedResults = encodeURIComponent(JSON.stringify(aiResults));
+            // Encode the AI results to pass as parameters
+            var encodedResults = encodeURIComponent(JSON.stringify(this._aiAnalysisResults));
         
-            // Navigate to the confirmation view with AI results
+            // Navigate to the confirmation view with the results
             sap.ui.core.UIComponent.getRouterFor(this).navTo("confirmation", {
                 aiResults: encodedResults
             });
-        },      
+        },             
     });
 });
