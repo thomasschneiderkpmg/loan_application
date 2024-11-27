@@ -326,21 +326,42 @@ sap.ui.define([
         },           
 
         onPostPress: function () {
+            // Check if AI results exist
+            if (!this._aiAnalysisResults) {
+                MessageToast.show("No AI analysis results available. Please run the analysis first.");
+                return;
+            }
+        
+            // Analyze AI results for critical conditions
+            var isCritical = this._isAnyScanCritical(this._aiAnalysisResults);
+        
+            var message = isCritical
+                ? "One or more AI scans have flagged critical issues. Are you sure you want to continue, or do you want to initiate a thorough search workflow?"
+                : "Are you sure you want to submit the loan application?";
+        
             // Show a confirmation dialog when "Post" is pressed
             if (!this._oDialog) {
                 this._oDialog = new sap.m.Dialog({
                     title: "Confirm Submission",
                     type: "Message",
-                    content: new sap.m.Text({ text: "Are you sure you want to submit the loan application?" }),
+                    content: new sap.m.Text({ text: message }),
                     beginButton: new sap.m.Button({
-                        text: "Yes",
+                        text: "Submit",
                         press: function () {
                             this._submitLoanApplication();
                             this._oDialog.close();
                         }.bind(this)
                     }),
                     endButton: new sap.m.Button({
-                        text: "No",
+                        text: "Initiate Search Workflow",
+                        visible: isCritical, // Only show this option if there are critical results
+                        press: function () {
+                            this._initiateSearchWorkflow();
+                            this._oDialog.close();
+                        }.bind(this)
+                    }),
+                    cancelButton: new sap.m.Button({
+                        text: "Cancel",
                         press: function () {
                             this._oDialog.close();
                         }.bind(this)
@@ -348,9 +369,34 @@ sap.ui.define([
                 });
         
                 this.getView().addDependent(this._oDialog);
+            } else {
+                // Update dialog content if it already exists
+                this._oDialog.getContent()[0].setText(message);
+                this._oDialog.getBeginButton().setText("Submit");
+                this._oDialog.getEndButton().setVisible(isCritical);
             }
+        
             this._oDialog.open();
         },
+        
+        _isAnyScanCritical: function (aiResults) {
+            // Check if any AI scan results are critical
+            if (
+                (aiResults.benfordsLaw && aiResults.benfordsLaw.compliancePercentage < 10) ||
+                (aiResults.fraudPatternAnalysis && aiResults.fraudPatternAnalysis.suspiciousCount > 5) ||
+                (aiResults.anomalyDetection && aiResults.anomalyDetection.anomaliesCount > 5)
+            ) {
+                return true;
+            }
+            return false;
+        },
+        
+        _initiateSearchWorkflow: function () {
+            // Placeholder function for initiating a thorough search workflow
+            MessageToast.show("Thorough search workflow initiated. Please wait...");
+            // Logic to initiate workflow can go here, e.g., API call or navigation
+        },
+        
         
         _submitLoanApplication: function () {
             // Check if AI results exist
