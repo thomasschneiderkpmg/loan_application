@@ -69,13 +69,23 @@
                     "pattern": "",
                     "name": "createLoan",
                     "target": "createLoan"
-                }
+                },
+                {
+                    "pattern": "confirmation/{aiResults}",
+                    "name": "confirmation",
+                    "target": "confirmation"
+                }                
             ],
             "targets": {
                 "createLoan": {
                     "viewName": "CreateLoan",
                     "viewId": "createLoan",
                     "viewLevel": 1
+                },
+                "confirmation": {
+                    "viewName": "Confirmation",
+                    "viewId": "confirmation",
+                    "viewLevel": 2
                 }
             }
         }

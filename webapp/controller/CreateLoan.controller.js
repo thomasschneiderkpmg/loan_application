@@ -70,39 +70,75 @@ sap.ui.define([
             this._aiDialog.open();
         },
 
+        onFileChange: function (oEvent) {
+            var oFile = oEvent.getParameter("files")[0];
+        
+            if (!oFile) {
+                MessageToast.show("Please select a file to upload.");
+                return;
+            }
+        
+            var sFileName = oFile.name.split(".")[0].toLowerCase(); // Extract the file name without extension
+            var sPath = sap.ui.require.toUrl("loan_application/model/" + sFileName + ".json");
+        
+            // Store the file name in the UI model
+            var oModel = this.getView().getModel("ui");
+            oModel.setProperty("/selectedFileName", sFileName);
+        
+            // Load the corresponding JSON file from the model folder
+            var oDataModel = new JSONModel();
+            oDataModel.loadData(sPath)
+                .then(function () {
+                    this.getView().setModel(oDataModel, "sampleData");
+                    MessageToast.show("Data loaded successfully for: " + sFileName);
+                }.bind(this))
+                .catch(function () {
+                    MessageToast.show("Failed to load data. Ensure the file exists in the model folder.");
+                    console.error("Error loading JSON file:", sPath);
+                });
+        },        
+        
         _runAIAnalyses: function () {
             var oModel = this.getView().getModel("ui");
             var analyses = oModel.getProperty("/selectedAnalyses");
-
-            // Load the data from `sebestyen.json`
+        
+            // Retrieve the selected file name
+            var sFileName = oModel.getProperty("/selectedFileName");
+        
+            if (!sFileName) {
+                MessageToast.show("No file selected. Please upload a file first.");
+                return;
+            }
+        
+            // Load the data from the JSON file
             var oDataModel = new JSONModel();
-            var sPath = sap.ui.require.toUrl("loan_application/model/sebestyen.json");
-
+            var sPath = sap.ui.require.toUrl("loan_application/model/" + sFileName + ".json");
+        
             oDataModel.loadData(sPath)
                 .then(function () {
                     var uploadedData = oDataModel.getData();
-
+        
                     if (!uploadedData || Object.keys(uploadedData).length === 0) {
                         MessageToast.show("The JSON file contains no valid data.");
                         return;
                     }
-
+        
                     // Filter selected analyses
                     var selectedAnalyses = Object.keys(analyses).filter(function (key) {
                         return analyses[key];
                     });
-
+        
                     if (selectedAnalyses.length === 0) {
                         MessageToast.show("Please select at least one analysis option.");
                         return;
                     }
-
+        
                     // Prepare the payload
                     var payload = {
                         data: uploadedData,
                         analyses: selectedAnalyses
                     };
-
+        
                     // Call the API
                     this._sendDataToAPI(payload);
                 }.bind(this))
@@ -110,7 +146,7 @@ sap.ui.define([
                     MessageToast.show("Failed to load the JSON file. Ensure it exists and is valid.");
                     console.error("JSON Load Error:", error);
                 });
-        },
+        },        
 
         _sendDataToAPI: function (payload) {
             // Replace this URL with your API endpoint
@@ -291,32 +327,41 @@ sap.ui.define([
         onPostPress: function () {
             // Show a confirmation dialog when "Post" is pressed
             if (!this._oDialog) {
-                this._oDialog = new Dialog({
+                this._oDialog = new sap.m.Dialog({
                     title: "Confirm Submission",
                     type: "Message",
                     content: new sap.m.Text({ text: "Are you sure you want to submit the loan application?" }),
-                    beginButton: new Button({
+                    beginButton: new sap.m.Button({
                         text: "Yes",
                         press: function () {
                             this._submitLoanApplication();
                             this._oDialog.close();
                         }.bind(this)
                     }),
-                    endButton: new Button({
+                    endButton: new sap.m.Button({
                         text: "No",
                         press: function () {
                             this._oDialog.close();
                         }.bind(this)
                     })
                 });
-
+        
                 this.getView().addDependent(this._oDialog);
             }
             this._oDialog.open();
         },
-
+        
         _submitLoanApplication: function () {
-            MessageToast.show("Loan application submitted successfully!");
-        }
+            // Retrieve the AI analysis results from the dialog content or internal model
+            var aiResults = this._aiAnalysisResults || {}; // Assuming `_aiAnalysisResults` stores the last analysis run
+        
+            // Encode the data to ensure safe URL passing
+            var encodedResults = encodeURIComponent(JSON.stringify(aiResults));
+        
+            // Navigate to the confirmation view with AI results
+            sap.ui.core.UIComponent.getRouterFor(this).navTo("confirmation", {
+                aiResults: encodedResults
+            });
+        },      
     });
 });

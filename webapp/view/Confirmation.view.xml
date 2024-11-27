@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    controllerName="loan_application.controller.Confirmation"
+    displayBlock="true">
+
+    <Page title="Loan Applicant Evaluation">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <Title text="AI Analysis Results" level="H1" class="sapUiSmallMarginBottom"/>
+
+                <!-- Display Verdict -->
+                <ObjectStatus
+                    text="{= ${ConfirmationData>/verdict} === 'Good Boy' ? 'Good Boy' : 'Bad Boy'}"
+                    state="{= ${ConfirmationData>/verdict} === 'Good Boy' ? 'Success' : 'Error'}"
+                    class="sapUiLargeMarginBottom"
+                />
+
+                <!-- Display Benford's Law Compliance -->
+                <ObjectAttribute
+                    title="Benford's Law Compliance"
+                    text="{ConfirmationData>/aiResults/benfordsLaw/compliancePercentage}%" />
+
+                <!-- Display Fraud Pattern Analysis -->
+                <ObjectAttribute
+                    title="Fraud Pattern Analysis"
+                    text="{ConfirmationData>/aiResults/fraudPatternAnalysis/message}" />
+
+                <!-- Display Anomaly Detection -->
+                <ObjectAttribute
+                    title="Anomaly Detection"
+                    text="{ConfirmationData>/aiResults/anomalyDetection/message}" />
+            </VBox>
+        </content>
+        <footer>
+            <OverflowToolbar>
+                <ToolbarSpacer />
+                <Button text="Back to Main" press="onNavBack" type="Emphasized" />
+            </OverflowToolbar>
+        </footer>
+    </Page>
+</mvc:View>
